@@ -9,4 +9,4 @@ to find them:
 There is no guarentee whatsoever that this stack is optimal with regard to memory and cpu settings.
 Use at your own risk!
 
-The deployment mode is global and the placement constraints will put it only on manager nodes.
+The deployment mode of kafka is global and the placement constraints will put it only on manager nodes.
