@@ -1,0 +1,52 @@
+version: '3.7'
+services:
+  zookeeper:
+    image: itsaur/zookeeper-replicated:3.5
+    environment:
+      REPLICAS: 3
+      SERVICE_NAME: zookeeper
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: "1536m"
+      placement:
+        constraints:
+          - node.labels.capacity!=none
+          - node.role!=manager
+    networks:
+      - kafka_net
+
+  kafka:
+    image: debezium/kafka:0.8
+    volumes:
+      - kafka:/kafka/data
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_MESSAGE_MAX_BYTES=20000000
+      - KAFKA_CLEANUP_POLICY=compact
+      - LISTENERS=PLAINTEXT://:9092
+      - BROKER_ID=-1
+      - ADVERTISED_LISTENERS=PLAINTEXT://{{.Node.Hostname}}:9092
+    depends_on:
+      - zookeeper
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role==manager
+    ports:
+      - target: 9092
+        published: 9092
+        protocol: tcp
+        mode: host
+    networks:
+      - kafka_net
+
+volumes:
+  kafka:
+
+networks:
+  kafka_net:
