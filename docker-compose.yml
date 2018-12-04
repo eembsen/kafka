@@ -15,11 +15,16 @@ services:
         constraints:
           - node.labels.capacity!=none
           - node.role!=manager
+    ports:
+      - target: 2181
+        published: 2181
+        protocol: tcp
     networks:
       - kafka_net
 
   kafka:
     image: debezium/kafka:0.8
+    hostname: "{{.Node.Hostname}}"
     volumes:
       - kafka:/kafka/data
     environment:
